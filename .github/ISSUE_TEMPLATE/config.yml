@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Learning path / 学习路径
+    url: https://github.com/WUMIKE233/ai-open-lab/blob/main/docs/LEARNING_PATH.md
+    about: Start here if you want to learn the project before opening an issue. / 如果想先学习项目，请从这里开始。
