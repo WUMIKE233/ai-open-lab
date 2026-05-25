@@ -7,14 +7,17 @@ import json
 from pathlib import Path
 import sys
 
-from ai_open_lab.prompt_eval import evaluate_cases, load_cases
+from ai_open_lab.prompt_eval import evaluate_cases, load_cases, render_markdown_report
 from ai_open_lab.rag import search
 from ai_open_lab.safety import risk_level, scan_text
 
 
 def _eval_prompts(args: argparse.Namespace) -> int:
     report = evaluate_cases(load_cases(args.cases))
-    print(json.dumps(report, indent=2, ensure_ascii=False))
+    if args.format == "markdown":
+        print(render_markdown_report(report))
+    else:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["failed"] == 0 else 1
 
 
@@ -44,6 +47,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     eval_parser = subparsers.add_parser("eval-prompts", help="Evaluate JSONL prompt test cases.")
     eval_parser.add_argument("cases", help="Path to JSONL prompt cases.")
+    eval_parser.add_argument(
+        "--format",
+        choices=("json", "markdown"),
+        default="json",
+        help="Output format for the evaluation report.",
+    )
     eval_parser.set_defaults(func=_eval_prompts)
 
     rag_parser = subparsers.add_parser("rag-search", help="Search Markdown/text notes with tiny TF-IDF retrieval.")

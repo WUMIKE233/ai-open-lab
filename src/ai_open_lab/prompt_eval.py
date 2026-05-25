@@ -124,3 +124,42 @@ def evaluate_cases(cases: Iterable[PromptCase]) -> dict[str, Any]:
             for result in results
         ],
     }
+
+
+def _format_list(values: Any) -> str:
+    if not values:
+        return "none"
+    return ", ".join(str(value) for value in values)
+
+
+def render_markdown_report(report: dict[str, Any]) -> str:
+    """Render an evaluation report as human-readable Markdown."""
+
+    lines = [
+        "# Prompt Evaluation Report",
+        "",
+        f"Total: {report['total']}",
+        f"Passed: {report['passed']}",
+        f"Failed: {report['failed']}",
+        f"Average Score: {report['average_score']}",
+        "",
+        "## Results",
+    ]
+
+    for result in report["results"]:
+        status = "passed" if result["passed"] else "failed"
+        lines.extend(
+            [
+                "",
+                f"### {result['id']}",
+                "",
+                f"Status: {status}",
+                f"Score: {result['score']}",
+                "",
+                f"Missing keywords: {_format_list(result['missing_keywords'])}",
+                f"Forbidden hits: {_format_list(result['forbidden_hits'])}",
+                f"Missing regex: {_format_list(result['missing_regex'])}",
+            ]
+        )
+
+    return "\n".join(lines)

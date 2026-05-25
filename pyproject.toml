@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ai-open-lab"
 version = "0.1.0"
-description = "本地优先的开源 AI 工具集 / Local-first open-source AI utilities for prompt evaluation, mini RAG search, and agent safety scanning."
+description = "双语、本地优先的 AI 教学实验室 / Bilingual local-first AI teaching lab for prompt evaluation, mini RAG search, and agent safety scanning."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
   {name = "AI Open Lab Contributors"}
 ]
-keywords = ["ai", "rag", "prompt-engineering", "evaluation", "agent-safety"]
+keywords = ["ai", "ai-teaching", "rag", "prompt-engineering", "prompt-evaluation", "evaluation", "agent-safety"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -22,6 +22,12 @@ classifiers = [
   "Topic :: Text Processing :: Indexing"
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/WUMIKE233/ai-open-lab"
+Repository = "https://github.com/WUMIKE233/ai-open-lab"
+Documentation = "https://github.com/WUMIKE233/ai-open-lab/blob/main/docs/LEARNING_PATH.md"
+Issues = "https://github.com/WUMIKE233/ai-open-lab/issues"
 
 [project.scripts]
 ai-open-lab = "ai_open_lab.cli:main"
