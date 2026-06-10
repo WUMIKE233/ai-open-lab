@@ -7,17 +7,23 @@ import json
 from pathlib import Path
 import sys
 
-from ai_open_lab.prompt_eval import evaluate_cases, load_cases, render_markdown_report
+from ai_open_lab.prompt_eval import (
+    evaluate_cases,
+    filter_report_results,
+    load_cases,
+    render_markdown_report,
+)
 from ai_open_lab.rag import search
 from ai_open_lab.safety import risk_level, scan_text
 
 
 def _eval_prompts(args: argparse.Namespace) -> int:
     report = evaluate_cases(load_cases(args.cases))
+    display_report = filter_report_results(report, failures_only=args.failures_only)
     if args.format == "markdown":
-        print(render_markdown_report(report))
+        print(render_markdown_report(display_report))
     else:
-        print(json.dumps(report, indent=2, ensure_ascii=False))
+        print(json.dumps(display_report, indent=2, ensure_ascii=False))
     return 0 if report["failed"] == 0 else 1
 
 
@@ -52,6 +58,11 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("json", "markdown"),
         default="json",
         help="Output format for the evaluation report.",
+    )
+    eval_parser.add_argument(
+        "--failures-only",
+        action="store_true",
+        help="Only display failed cases while preserving the full summary counts.",
     )
     eval_parser.set_defaults(func=_eval_prompts)
 

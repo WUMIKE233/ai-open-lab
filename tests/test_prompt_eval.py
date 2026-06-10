@@ -4,6 +4,7 @@ from ai_open_lab.prompt_eval import (
     PromptCase,
     evaluate_case,
     evaluate_cases,
+    filter_report_results,
     render_markdown_report,
 )
 
@@ -90,6 +91,22 @@ class PromptEvalTests(unittest.TestCase):
         self.assertIn("Missing keywords: private", markdown)
         self.assertIn("Forbidden hits: password", markdown)
         self.assertIn("Missing regex: rotated", markdown)
+
+    def test_filter_report_results_keeps_only_failures(self):
+        report = evaluate_cases(
+            [
+                PromptCase("ok", "", "alpha", expected_keywords=("alpha",)),
+                PromptCase("bad", "", "beta", expected_keywords=("alpha",)),
+            ]
+        )
+
+        filtered = filter_report_results(report, failures_only=True)
+
+        self.assertEqual(filtered["total"], 2)
+        self.assertEqual(filtered["passed"], 1)
+        self.assertEqual(filtered["failed"], 1)
+        self.assertEqual(filtered["displayed"], 1)
+        self.assertEqual(filtered["results"][0]["id"], "bad")
 
 
 if __name__ == "__main__":

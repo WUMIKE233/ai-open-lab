@@ -126,6 +126,19 @@ def evaluate_cases(cases: Iterable[PromptCase]) -> dict[str, Any]:
     }
 
 
+def filter_report_results(report: dict[str, Any], *, failures_only: bool = False) -> dict[str, Any]:
+    """Return a copy of a report with optional result filtering for display."""
+
+    if not failures_only:
+        return dict(report)
+    filtered = dict(report)
+    filtered["results"] = [
+        result for result in report.get("results", []) if not bool(result.get("passed", False))
+    ]
+    filtered["displayed"] = len(filtered["results"])
+    return filtered
+
+
 def _format_list(values: Any) -> str:
     if not values:
         return "none"

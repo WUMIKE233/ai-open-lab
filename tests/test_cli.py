@@ -43,6 +43,22 @@ class CliTests(unittest.TestCase):
         self.assertIn("# Prompt Evaluation Report", output.getvalue())
         self.assertIn("Status: passed", output.getvalue())
 
+    def test_eval_prompts_can_show_failures_only(self):
+        cases = self._write_cases(
+            '{"id":"ok","response":"Keep secrets private.","expected_keywords":["private"]}\n'
+            '{"id":"bad","response":"Share the password.","forbidden_keywords":["password"]}\n'
+        )
+        output = io.StringIO()
+
+        with contextlib.redirect_stdout(output):
+            exit_code = main(["eval-prompts", str(cases), "--failures-only"])
+
+        report = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(report["total"], 2)
+        self.assertEqual(report["displayed"], 1)
+        self.assertEqual(report["results"][0]["id"], "bad")
+
     def test_eval_prompts_rejects_unknown_format(self):
         cases = self._write_cases(
             '{"id":"ok","response":"Keep secrets private.","expected_keywords":["private"]}\n'
