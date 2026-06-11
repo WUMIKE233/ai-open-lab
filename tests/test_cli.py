@@ -59,6 +59,20 @@ class CliTests(unittest.TestCase):
         self.assertEqual(report["displayed"], 1)
         self.assertEqual(report["results"][0]["id"], "bad")
 
+    def test_eval_prompts_reports_average_score_gate(self):
+        cases = self._write_cases(
+            '{"id":"ok","response":"Keep secrets private.","expected_keywords":["private"]}\n'
+        )
+        output = io.StringIO()
+
+        with contextlib.redirect_stdout(output):
+            exit_code = main(["eval-prompts", str(cases), "--min-average-score", "1.0"])
+
+        report = json.loads(output.getvalue())
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(report["min_average_score"], 1.0)
+        self.assertTrue(report["score_gate_passed"])
+
     def test_eval_prompts_rejects_unknown_format(self):
         cases = self._write_cases(
             '{"id":"ok","response":"Keep secrets private.","expected_keywords":["private"]}\n'

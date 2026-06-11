@@ -139,6 +139,16 @@ def filter_report_results(report: dict[str, Any], *, failures_only: bool = False
     return filtered
 
 
+def apply_average_score_gate(report: dict[str, Any], *, min_average_score: float = 0.0) -> dict[str, Any]:
+    """Return a report copy annotated with an average-score quality gate."""
+
+    threshold = max(0.0, min(1.0, float(min_average_score)))
+    gated = dict(report)
+    gated["min_average_score"] = threshold
+    gated["score_gate_passed"] = float(report.get("average_score", 0.0)) >= threshold
+    return gated
+
+
 def _format_list(values: Any) -> str:
     if not values:
         return "none"
@@ -155,9 +165,16 @@ def render_markdown_report(report: dict[str, Any]) -> str:
         f"Passed: {report['passed']}",
         f"Failed: {report['failed']}",
         f"Average Score: {report['average_score']}",
-        "",
-        "## Results",
     ]
+    if "min_average_score" in report:
+        gate_status = "passed" if report.get("score_gate_passed") else "failed"
+        lines.extend(
+            [
+                f"Minimum Average Score: {report['min_average_score']}",
+                f"Score Gate: {gate_status}",
+            ]
+        )
+    lines.extend(["", "## Results"])
 
     for result in report["results"]:
         status = "passed" if result["passed"] else "failed"

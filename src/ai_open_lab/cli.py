@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 
 from ai_open_lab.prompt_eval import (
+    apply_average_score_gate,
     evaluate_cases,
     filter_report_results,
     load_cases,
@@ -19,12 +20,13 @@ from ai_open_lab.safety import risk_level, scan_text
 
 def _eval_prompts(args: argparse.Namespace) -> int:
     report = evaluate_cases(load_cases(args.cases))
+    report = apply_average_score_gate(report, min_average_score=args.min_average_score)
     display_report = filter_report_results(report, failures_only=args.failures_only)
     if args.format == "markdown":
         print(render_markdown_report(display_report))
     else:
         print(json.dumps(display_report, indent=2, ensure_ascii=False))
-    return 0 if report["failed"] == 0 else 1
+    return 0 if report["failed"] == 0 and report["score_gate_passed"] else 1
 
 
 def _rag_search(args: argparse.Namespace) -> int:
@@ -63,6 +65,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--failures-only",
         action="store_true",
         help="Only display failed cases while preserving the full summary counts.",
+    )
+    eval_parser.add_argument(
+        "--min-average-score",
+        type=float,
+        default=0.0,
+        help="Fail when the full report average score is below this 0.0-1.0 threshold.",
     )
     eval_parser.set_defaults(func=_eval_prompts)
 

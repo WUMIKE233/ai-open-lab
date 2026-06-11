@@ -4,6 +4,7 @@ from ai_open_lab.prompt_eval import (
     PromptCase,
     evaluate_case,
     evaluate_cases,
+    apply_average_score_gate,
     filter_report_results,
     render_markdown_report,
 )
@@ -107,6 +108,19 @@ class PromptEvalTests(unittest.TestCase):
         self.assertEqual(filtered["failed"], 1)
         self.assertEqual(filtered["displayed"], 1)
         self.assertEqual(filtered["results"][0]["id"], "bad")
+
+    def test_apply_average_score_gate_annotates_report(self):
+        report = evaluate_cases(
+            [
+                PromptCase("ok", "", "alpha", expected_keywords=("alpha",)),
+                PromptCase("bad", "", "beta", expected_keywords=("alpha",)),
+            ]
+        )
+
+        gated = apply_average_score_gate(report, min_average_score=0.75)
+
+        self.assertEqual(gated["min_average_score"], 0.75)
+        self.assertFalse(gated["score_gate_passed"])
 
 
 if __name__ == "__main__":
